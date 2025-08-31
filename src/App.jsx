@@ -13,16 +13,16 @@ export default function App() {
       header: true,
       complete: (result) => {
         setData(result.data);
-        const uniqueCategories = [...new Set(result.data.map((row) => row.Categoria))];
-        setCategories(uniqueCategories);
+        const uniqueCategories = [...new Set(result.data.map((row) => row.CATEGORIA))];
+        setCategories(uniqueCategories.filter((c) => c)); // remove vazios
         setSelectedCategory(uniqueCategories[0]);
       },
     });
   }, []);
 
   const filteredData = data
-    .filter((row) => row.Categoria === selectedCategory)
-    .sort((a, b) => parseInt(a.Posicao) - parseInt(b.Posicao));
+    .filter((row) => row.CATEGORIA === selectedCategory)
+    .sort((a, b) => parseInt(a.COL) - parseInt(b.COL));
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #e0f2fe, #dcfce7)', padding: '20px' }}>
@@ -30,7 +30,7 @@ export default function App() {
         Ranking 2025 - Liga Oeste Paulista de Tênis de Mesa
       </h1>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         {categories.map((cat) => (
           <button
             key={cat}
@@ -50,9 +50,9 @@ export default function App() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
-        {filteredData.map((athlete) => (
+        {filteredData.map((athlete, i) => (
           <div
-            key={athlete.Atleta}
+            key={i}
             style={{
               backgroundColor: 'white',
               padding: '16px',
@@ -62,9 +62,10 @@ export default function App() {
             }}
             onClick={() => setSelectedAthlete(athlete)}
           >
-            <p style={{ fontWeight: 'bold', color: '#1e40af' }}>{athlete.Atleta}</p>
-            <p>Posição: {athlete.Posicao}</p>
-            <p>Pontos: {athlete.Total}</p>
+            <p style={{ fontWeight: 'bold', color: '#1e40af' }}>{athlete.NOME}</p>
+            <p>Equipe: {athlete.EQUIPE}</p>
+            <p>Posição: {athlete.COL}</p>
+            <p>Pontos: {athlete.TOTAL}</p>
           </div>
         ))}
       </div>
@@ -85,9 +86,13 @@ export default function App() {
           onClick={() => setSelectedAthlete(null)}
         >
           <div style={{ background: 'white', padding: '20px', borderRadius: '12px', maxWidth: '400px' }}>
-            <h2 style={{ marginBottom: '10px', color: '#065f46' }}>{selectedAthlete.Atleta}</h2>
+            <h2 style={{ marginBottom: '10px', color: '#065f46' }}>{selectedAthlete.NOME}</h2>
+            <p><strong>Equipe:</strong> {selectedAthlete.EQUIPE}</p>
+            <p><strong>Categoria:</strong> {selectedAthlete.CATEGORIA}</p>
+            <p><strong>Pontos Totais:</strong> {selectedAthlete.TOTAL}</p>
+            <hr style={{ margin: '10px 0' }} />
             {Object.keys(selectedAthlete)
-              .filter((key) => key.includes('Etapa'))
+              .filter((key) => !['COL','NOME','EQUIPE','CATEGORIA','TOTAL'].includes(key))
               .map((etapa) => (
                 <p key={etapa}>
                   <strong>{etapa}:</strong> {selectedAthlete[etapa]}
